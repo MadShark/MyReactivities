@@ -1,15 +1,12 @@
 import { Button, Form, Segment } from "semantic-ui-react";
-import { IActivity } from "../../../app/models/activity";
 import { ChangeEvent, useState } from "react";
+import { useStore } from "../../../app/stores/store";
+import { observer } from "mobx-react-lite";
 
-interface Props {
-    selectedActivity: IActivity | undefined;
-    handleFormClose: () => void;
-    handleCreateEdit: (activity: IActivity) => void;
-    submitting: boolean;
-}
-
-export default function ActivityForm({selectedActivity, handleFormClose, handleCreateEdit, submitting}: Props) {
+export default observer (function ActivityForm() {
+    
+    const {activityStore} = useStore();
+    const {selectedActivity, closeForm, createActivity, updateActivity, loading} = activityStore;
     
     const initialState = selectedActivity ?? {
         id: '',
@@ -24,7 +21,7 @@ export default function ActivityForm({selectedActivity, handleFormClose, handleC
     const[currentActivity, setCurrentActivity] = useState(initialState);
     
     function HandleSubmit() {
-        handleCreateEdit(currentActivity);
+        currentActivity?.id ? updateActivity(currentActivity) : createActivity(currentActivity);
     };
     
     function HandleInputChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -42,9 +39,9 @@ export default function ActivityForm({selectedActivity, handleFormClose, handleC
                 <Form.Input placeholder='City' name='city' value={currentActivity.city} onChange={HandleInputChange} />
                 <Form.Input placeholder='Venue' name='venue' value={currentActivity.venue} onChange={HandleInputChange} />
                 
-                <Button loading={submitting} floated="right" positive type="submit" content='Submit' />
-                <Button onClick={handleFormClose} floated="right" type="button" content='Cancel' />
+                <Button loading={loading} floated="right" positive type="submit" content='Submit' />
+                <Button onClick={closeForm} floated="right" type="button" content='Cancel' />
             </Form>
         </Segment>
     )
-}
+})
