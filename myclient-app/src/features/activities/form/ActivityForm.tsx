@@ -2,7 +2,7 @@ import { Button, Form, Header, Segment } from "semantic-ui-react";
 import { useEffect, useState } from "react";
 import { useStore } from "../../../app/stores/store";
 import { observer } from "mobx-react-lite";
-import { IActivity } from "../../../app/models/activity";
+import { ActivityFormValues, IActivity } from "../../../app/models/activity";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { Formik } from "formik";
@@ -21,15 +21,7 @@ export default observer (function ActivityForm() {
     const {id} = useParams();
     const navigate = useNavigate();
     
-    const[currentActivity, setCurrentActivity] = useState<IActivity>({
-        id: '',
-        title: '',
-        category: '',
-        description: '',
-        date: '',
-        city: '',
-        venue: ''
-    });
+    const[currentActivity, setCurrentActivity] = useState<ActivityFormValues>(new ActivityFormValues());
     
     const validationSchema = Yup.object({
         title: Yup.string().required('The activity title is required'),
@@ -41,14 +33,17 @@ export default observer (function ActivityForm() {
     })
     
     useEffect(() => {
-        if (id) loadActivity(id).then(activity => setCurrentActivity(activity!));
+        if (id) loadActivity(id).then(activity => setCurrentActivity(new ActivityFormValues(activity)));
     }, [id, loadActivity]);
     
-    function HandleFormSubmit(currentActivity: IActivity) {
+    function HandleFormSubmit(currentActivity: ActivityFormValues) {
         // ===[ CREATE ]===
         if (!currentActivity.id) {
-            currentActivity.id = uuid();
-            createActivity(currentActivity).then(() => navigate(`/activities/${currentActivity.id}`));
+            let newActivity = {
+                ...currentActivity,
+                id: uuid()
+            };
+            createActivity(newActivity).then(() => navigate(`/activities/${currentActivity.id}`));
         } 
         // ===[ EDIT ]===
         else {
