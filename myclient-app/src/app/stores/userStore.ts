@@ -1,8 +1,9 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { history } from "../..";
+// import { history } from "../..";
 import agent from "../api/agent";
 import { User, UserFormValues } from "../models/user";
 import { store } from "./store";
+import { router } from "../router/Routes";
 
 export default class UserStore {
     user: User | null = null;
@@ -22,9 +23,9 @@ export default class UserStore {
         try {
             const user = await agent.Account.login(creds);
             store.commonStore.setToken(user.token);
-            this.startRefreshTokenTimer(user);
+            // this.startRefreshTokenTimer(user);
             runInAction(() => this.user = user);
-            history.push('/activities');
+            router.navigate('/activities');
             store.modalStore.closeModal();
         } catch (error) {
             throw error;
@@ -35,15 +36,14 @@ export default class UserStore {
         store.commonStore.setToken(null);
         window.localStorage.removeItem('jwt');
         this.user = null;
-        history.push('/');
+        router.navigate('/');
     }
 
     getUser = async () => {
         try {
             const user = await agent.Account.current();
-            store.commonStore.setToken(user.token);
             runInAction(() => this.user = user);
-            this.startRefreshTokenTimer(user);
+            // this.startRefreshTokenTimer(user);
         } catch (error) {
             console.log(error);
         }
@@ -51,8 +51,10 @@ export default class UserStore {
 
     register = async (creds: UserFormValues) => {
         try {
-            await agent.Account.register(creds);
-            history.push(`/account/registerSuccess?email=${creds.email}`);
+            const user = await agent.Account.register(creds);
+            store.commonStore.setToken(user.token);
+            runInAction(() => this.user = user);
+            router.navigate('/activities');
             store.modalStore.closeModal();
         } catch (error) {
             throw error;

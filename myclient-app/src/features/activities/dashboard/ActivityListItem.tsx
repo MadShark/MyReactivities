@@ -1,9 +1,6 @@
 import { Button, Icon, Item, Label, Segment } from 'semantic-ui-react';
 import { IActivity } from '../../../app/models/activity';
 import { Link } from 'react-router-dom';
-import { useStore } from '../../../app/stores/store';
-import { SyntheticEvent, useState } from 'react';
-import { format } from 'date-fns';
 import ActivityListItemAttendee from './ActivityListItemAttendee';
 
 interface Props {
