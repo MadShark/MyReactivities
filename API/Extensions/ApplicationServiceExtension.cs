@@ -7,6 +7,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastructure.Security;
 using Application.Interfaces;
+using Infrastructure.Photos;
 
 namespace API.Extensions
 {
@@ -20,10 +21,12 @@ namespace API.Extensions
             {
                 opt.UseSqlServer(config.GetConnectionString("MyConnectionString"));
             });
-            
-            services.AddCors(opt => {
-                opt.AddPolicy("MyCorsPolicy", policy => {
-                   policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000"); 
+
+            services.AddCors(opt =>
+            {
+                opt.AddPolicy("MyCorsPolicy", policy =>
+                {
+                    policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
                 });
             });
 
@@ -33,7 +36,9 @@ namespace API.Extensions
             services.AddValidatorsFromAssemblyContaining<Create>(); // Contains at least ONE that inherits from "AbstractValidator"
             services.AddHttpContextAccessor();
             services.AddScoped<IUserAccessor, UserAccessor>();  // Inject Service in ALL Handlers
-            
+            services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+            services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
+
             return services;
         }
     }
